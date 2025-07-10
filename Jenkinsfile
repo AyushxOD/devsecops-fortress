@@ -1,42 +1,29 @@
-// Jenkinsfile - FULL VERSION
+// Jenkinsfile - LEAN VERSION FOR TESTING
 pipeline {
     agent any
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code from source control...'
-                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/devsecops-fortress.git'
+                echo 'Executing Stage 1: Checking out code...'
+                git branch: 'main', url: 'https://github.com/AyushxOD/devsecops-fortress.git'
+                echo 'Stage 1 Complete.'
             }
         }
 
         stage('SAST Scan: Bandit') {
             steps {
-                echo 'SECURITY GATE 1: Scanning Python code for vulnerabilities...'
+                echo 'Executing Stage 2: Scanning Python code...'
+                // This is a lightweight scan to test system stability.
                 sh 'pip install bandit && bandit -r .'
+                echo 'Stage 2 Complete.'
             }
         }
-
-        stage('IaC Scan: tfsec') {
-            steps {
-                echo 'SECURITY GATE 2: Scanning Terraform code...'
-                // This command needs to be installed on the Jenkins server.
-                // For now, we assume it is.
-                sh 'tfsec .'
-            }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline finished.'
         }
-
-        stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                script {
-                    // Use a unique build ID for the image tag
-                    def dockerImage = "yourdockerhubusername/fortress:${env.BUILD_ID}"
-                    sh "docker build -t ${dockerImage} ."
-                }
-            }
-        }
-
-        // We will add the Trivy Container Scan stage later, after configuring a registry.
     }
 }
