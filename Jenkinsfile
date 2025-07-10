@@ -1,6 +1,4 @@
-// Jenkinsfile
-// The CI/CD pipeline definition for the DevSecOps Fortress.
-
+// Jenkinsfile - FULL VERSION
 pipeline {
     agent any
 
@@ -8,51 +6,37 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Checking out code from source control...'
-                // This will be configured to pull from your GitHub repository
-                git 'YOUR_GITHUB_REPOSITORY_URL_HERE'
+                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/devsecops-fortress.git'
             }
         }
 
-        stage('SAST Scan (Placeholder)') {
+        stage('SAST Scan: Bandit') {
             steps {
-                echo 'SECURITY GATE 1: Performing Static Application Security Testing...'
-                // We will integrate SonarQube here.
+                echo 'SECURITY GATE 1: Scanning Python code for vulnerabilities...'
+                sh 'pip install bandit && bandit -r .'
             }
         }
 
-        stage('IaC Scan (Placeholder)') {
+        stage('IaC Scan: tfsec') {
             steps {
-                echo 'SECURITY GATE 2: Scanning Infrastructure-as-Code for misconfigurations...'
-                // We will integrate tfsec here.
+                echo 'SECURITY GATE 2: Scanning Terraform code...'
+                // This command needs to be installed on the Jenkins server.
+                // For now, we assume it is.
+                sh 'tfsec .'
             }
         }
 
-        stage('Build & Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building and pushing Docker image to registry...'
-                // We will add Docker build and push commands here.
+                echo 'Building Docker image...'
+                script {
+                    // Use a unique build ID for the image tag
+                    def dockerImage = "yourdockerhubusername/fortress:${env.BUILD_ID}"
+                    sh "docker build -t ${dockerImage} ."
+                }
             }
         }
 
-        stage('Container Scan (Placeholder)') {
-            steps {
-                echo 'SECURITY GATE 3: Scanning Docker image for known vulnerabilities...'
-                // We will integrate Trivy here.
-            }
-        }
-        
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Deploying application to a staging environment...'
-                // We will add 'terraform apply' commands here.
-            }
-        }
-        
-        stage('Cleanup Staging') {
-            steps {
-                echo 'Destroying staging environment to save costs...'
-                // We will add 'terraform destroy' here.
-            }
-        }
+        // We will add the Trivy Container Scan stage later, after configuring a registry.
     }
 }
